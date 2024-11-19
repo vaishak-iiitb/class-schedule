@@ -1,0 +1,32 @@
+IMT2023 5
+"Discrete Mathematics" "Ashish Choudhary" 4
+"Systems and Signals" "Vinod Reddy" 4
+"Programming in Java" "Vivek Yadav" 4
+"Physics" "Malpakka" 4
+"Chemistry" "Walter White" 4
+IMT2024 7
+"Digital Design" "Kurian Polachan" 4
+"Economics" "V Shridhar" 4
+"English" "Priyanka Sharma" 2
+"Programming in C" "Badrinath" 2
+"Mathematics-1" "Manisha Kulkarni" 4
+"Mathematics-2" "Travis head" 4 
+"Horology" "Your Mom" 2
+IMT2025 4
+"Microprocessors" "Anjali Desai" 4
+"Data Structures" "Rajesh Gupta" 4
+"Linear Algebra" "Arun Kumar" 4
+"Introduction to AI" "Preeti Nair" 2
+IMT2026 6
+"Computer Networks" "Rahul Mehta" 4
+"Operating Systems" "Deepa Sharma" 4
+"Engineering Mathematics" "Amitabh Singh" 4
+"Digital Signal Processing" "Neha Verma" 4
+"Biology for Engineers" "Kavita Joshi" 2
+"Chemistry-2" "Teacher 1" 2
+IMT2027 5
+"Subject 1" "Teacher 2" 4
+"Subject 2" "Teacher 3" 4
+"Subject 3" "Teacher 4" 4
+"Subject 4" "Teacher 5" 2
+"Subject 5" "Teacher 6" 2
