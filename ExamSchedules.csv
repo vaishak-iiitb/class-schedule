@@ -1,0 +1,28 @@
+Batch,Name,Time Slot,Date,Room
+IMT2023,Discrete Mathematics,9:30 am - 12:30 pm,01/12/2024,Room1
+IMT2023,Systems and Signals,9:30 am - 12:30 pm,02/12/2024,Room1
+IMT2023,Programming in Java,9:30 am - 12:30 pm,03/12/2024,Room1
+IMT2023,Physics,9:30 am - 12:30 pm,04/12/2024,Room1
+IMT2023,Chemistry,9:30 am - 12:30 pm,05/12/2024,Room1
+IMT2024,Digital Design,2:00 pm - 5:00 pm,01/12/2024,Room1
+IMT2024,Mathematics-2,9:30 am - 12:30 pm,01/12/2024,Room2
+IMT2024,Economics,2:00 pm - 5:00 pm,02/12/2024,Room1
+IMT2024,Horology,9:30 am - 12:30 pm,02/12/2024,Room2
+IMT2024,English,2:00 pm - 5:00 pm,03/12/2024,Room1
+IMT2024,Programming in C,2:00 pm - 5:00 pm,04/12/2024,Room1
+IMT2024,Mathematics-1,2:00 pm - 5:00 pm,05/12/2024,Room1
+IMT2025,Introduction to AI,2:00 pm - 5:00 pm,01/12/2024,Room2
+IMT2025,Microprocessors,9:30 am - 12:30 pm,03/12/2024,Room2
+IMT2025,Data Structures,9:30 am - 12:30 pm,04/12/2024,Room2
+IMT2025,Linear Algebra,9:30 am - 12:30 pm,05/12/2024,Room2
+IMT2026,Biology for Engineers,9:30 am - 12:30 pm,01/12/2024,Room3
+IMT2026,Computer Networks,2:00 pm - 5:00 pm,02/12/2024,Room2
+IMT2026,Chemistry-2,9:30 am - 12:30 pm,02/12/2024,Room3
+IMT2026,Operating Systems,2:00 pm - 5:00 pm,03/12/2024,Room2
+IMT2026,Engineering Mathematics,2:00 pm - 5:00 pm,04/12/2024,Room2
+IMT2026,Digital Signal Processing,2:00 pm - 5:00 pm,05/12/2024,Room2
+IMT2027,Subject 4,2:00 pm - 5:00 pm,01/12/2024,Room3
+IMT2027,Subject 5,2:00 pm - 5:00 pm,02/12/2024,Room3
+IMT2027,Subject 1,9:30 am - 12:30 pm,03/12/2024,Room3
+IMT2027,Subject 2,9:30 am - 12:30 pm,04/12/2024,Room3
+IMT2027,Subject 3,9:30 am - 12:30 pm,05/12/2024,Room3
