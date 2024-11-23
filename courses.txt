@@ -1,32 +1,32 @@
 IMT2024 7
-"Digital Design" "Kurian Polachan" 4
-"Economics" "V Shridhar" 4
-"English" "Priyanka Sharma" 2
-"Programming in C" "Badrinath" 2
-"Mathematics-1" "Manisha Kulkarni" 4
-"Mathematics-2" "Travis head" 4 
-"Horology" "Your Mom" 2
+"Calculus" "Dr.A" 4
+"Linear Algebra" "Dr.A" 2
+"Thermodynamics" "Dr.B" 2
+"Molecular Biology" "Dr.D" 2
+"Statistics" "Dr.F" 2
+"Inorganic Chemistry" "Dr.C" 2
+"Biochemistry" "Dr.C" 2
 IMT2023 5
-"Discrete Mathematics" "Ashish Choudhary" 4
-"Systems and Signals" "Vinod Reddy" 4
-"Programming in Java" "Vivek Yadav" 4
-"Physics" "Malpakka" 4
-"Chemistry" "Walter White" 4
-IMT2025 4
-"Microprocessors" "Anjali Desai" 4
-"Data Structures" "Rajesh Gupta" 4
-"Linear Algebra" "Arun Kumar" 4
-"Introduction to AI" "Preeti Nair" 2
-IMT2026 6
-"Computer Networks" "Rahul Mehta" 4
-"Operating Systems" "Deepa Sharma" 4
-"Engineering Mathematics" "Amitabh Singh" 4
-"Digital Signal Processing" "Neha Verma" 4
-"Biology for Engineers" "Kavita Joshi" 2
-"Chemistry-2" "Teacher 1" 2
-IMT2027 5
-"Subject 1" "Teacher 2" 4
-"Subject 2" "Teacher 3" 4
-"Subject 3" "Teacher 4" 4
-"Subject 4" "Teacher 5" 2
-"Subject 5" "Teacher 6" 2
+"Optics" "Dr.B" 4
+"Quantum Mechanics" "Dr.G" 2
+"Differential Equations" "Dr.F" 2
+"Ancient Civilizations" "Dr.E" 2
+"Genetics" "Dr.D" 2
+IMT2022 4
+"Nuclear Physics" "Dr.G" 4
+"Medieval History" "Dr.E" 2
+"Modern Economics" "Dr.H" 2
+"Renaissance History" "Dr.H" 2
+IMT2021 6
+"Astrophysics" "Dr.I" 4
+"Organic Chemistry" "Dr.I" 2
+"Philosophy" "Dr.J" 2
+"Evolutionary Biology" "Dr.J" 2
+"Political Science" "Dr.K" 2
+"Cognitive Psychology" "Dr.K" 2
+IMT2020 5
+"Computer Science" "Dr.L" 4
+"Artificial Intelligence" "Dr.L" 2
+"Machine Learning" "Dr.M" 2
+"Game Theory" "Dr.M" 2
+"Cryptography" "Dr.N" 2
