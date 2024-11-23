@@ -6,6 +6,9 @@
 #include <tuple>
 #include <random>
 #include <algorithm>
+#include <iomanip>
+#include <fstream>
+#include <sstream>
 
 using namespace std;
 
@@ -140,23 +143,71 @@ public:
     }
 
     void printTimetable() {
+        const int width = 25;  // Adjust this to control the width of each cell
+
         for (const auto& [batchName, schedule] : timetable) {
             cout << "\nTimetable for Batch: " << batchName << "\n";
+            
+            // Print header (days of the week)
+            cout << left << setw(width) << "Period\\Day";  // Label for periods
             for (int day = 0; day < 5; ++day) {
-                for (int period = 0; period < 4; ++period) {
+                cout << left << setw(width) << "Day " << day + 1;  // Day headers
+            }
+            cout << "\n";
+
+            // Print the timetable rows (periods)
+            for (int period = 0; period < 4; ++period) {
+                cout << left << setw(width) << "Period " << period + 1;  // Period labels
+                for (int day = 0; day < 5; ++day) {
                     auto [prof, subj, room] = schedule[day][period];
-                    cout << "Day " << day+1 << " Period " << period+1 << ": "
-                         << (subj.empty() ? "Free" : subj + " by " + prof + " in " + room) << "\n";
+                    string display = (subj.empty() ? "Free" : subj + " by " + prof + " in " + room);
+                    cout << left << setw(width) << display;  // Course info or "Free"
                 }
+                cout << "\n";  // Move to the next line after each period
             }
         }
     }
+
+    void exportToCSV() {
+        ofstream outFile("Timetables.csv");
+        if (!outFile) {
+            cout << "Error opening file for writing.\n";
+            return;
+        }
+
+        const int width = 25;
+        for (const auto& [batchName, schedule] : timetable) {
+            outFile << "\nTimetable for Batch: " << batchName << "\n";
+
+            // Write header
+            outFile << "Period\\Day,";
+            for (int day = 0; day < 5; ++day) {
+                outFile << "Day " << day + 1 << ",";
+            }
+            outFile << "\n";
+
+            // Write the timetable rows
+            for (int period = 0; period < 4; ++period) {
+                outFile << "Period " << period + 1 << ",";
+                for (int day = 0; day < 5; ++day) {
+                    auto [prof, subj, room] = schedule[day][period];
+                    string display = (subj.empty() ? "Free" : subj + " by " + prof + " in " + room);
+                    outFile << display << ",";
+                }
+                outFile << "\n";
+            }
+        }
+        outFile.close();
+        cout << "Timetable exported to Timetables.csv" << "\n";
+    }
 };
+
+
 
 // Main function
 int main() {
     vector<Professor> professors = {
-        {"Dr.A",{"Calculus", "Linear Algebra"}, {"0,0","0,1","0,2","0,3", "1,0","1,1","1,2","1,3", "2,0","2,1","2,2","2,3","3,0","3,1","3,2","3,3"}},
+        {"Dr.A",{"Calculus", "Linear Algebra"}, {"0,0","0,1","0,2","0,3", "1,0","1,1","1,2","1,3", "2,0","2,1","2,2","2,3"}},
         {"Dr.B",{"Thermodynamics", "Optics"}, {"0,0","0,1","0,2","0,3", "1,0","1,1","1,2","1,3", "2,0","2,1","2,2","2,3","3,0","3,1","3,2","3,3"}},
         {"Dr.C", {"Inorganic Chemistry", "Biochemistry"},{"0,0","0,1","0,2","0,3", "1,0","1,1","1,2","1,3", "2,0","2,1","2,2","2,3","3,0","3,1","3,2","3,3"}},
         {"Dr.D", {"Molecular Biology", "Genetics"}, {"0,0","0,1","0,2","0,3", "1,0","1,1","1,2","1,3", "2,0","2,1","2,2","2,3","3,0","3,1","3,2","3,3"}},
@@ -225,6 +276,7 @@ int main() {
     if (scheduler.createTimetable()) {
         cout << "Timetable created successfully!\n";
         scheduler.printTimetable();
+        scheduler.exportToCSV();
     } else {
         cout << "Failed to create timetable.\n";
     }
