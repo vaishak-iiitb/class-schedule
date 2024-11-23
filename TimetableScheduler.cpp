@@ -4,7 +4,6 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <tuple>
-#include <random>
 #include <algorithm>
 
 using namespace std;
@@ -44,8 +43,6 @@ private:
     vector<Classroom> classrooms;
     vector<Batch> batches;
     unordered_map<string, vector<vector<tuple<string, string, string>>>> timetable; // [batch][day][period] -> (professor, subject, classroom)
-    random_device rd;
-    mt19937 gen{rd()};
 
     // Helper function to check constraints
     bool isSlotAvailable(int day, int period, string professor, string subject, string classroom, string batch) {
@@ -104,9 +101,8 @@ private:
                 if (availableSlots.empty())
                     return false; // No available slots; backtrack
 
-                // Randomly pick an available slot
-                uniform_int_distribution<> dist(0, availableSlots.size() - 1);
-                auto [day, period, classroom] = availableSlots[dist(gen)];
+                // Deterministically pick the first available slot
+                auto [day, period, classroom] = availableSlots.front();
                 currentSchedule[day][period] = {prof->name, subject, classroom};
                 hoursScheduled++;
             }
@@ -157,22 +153,22 @@ int main() {
         {"Dr.C", {"Inorganic Chemistry", "Biochemistry"},{"0,0","0,1","0,2","0,3", "1,0","1,1","1,2","1,3", "2,0","2,1","2,2","2,3","3,0","3,1","3,2","3,3","4,0","4,1","4,2","4,3"}},
         {"Dr.D", {"Molecular Biology", "Genetics"}, {"0,0","0,1","0,2","0,3", "1,0","1,1","1,2","1,3", "2,0","2,1","2,2","2,3","3,0","3,1","3,2","3,3","4,0","4,1","4,2","4,3"}},
         {"Dr.E", {"Ancient Civilizations", "Medieval History"},{"0,0","0,1","0,2","0,3", "1,0","1,1","1,2","1,3", "2,0","2,1","2,2","2,3","3,0","3,1","3,2","3,3","4,0","4,1","4,2","4,3"}},
-        {"Dr.F", {"Differential Equations", "Statistics"},{"0,0","0,1","0,2","0,3", "1,0","1,1","1,2","1,3", "2,0","2,1","2,2","2,3","3,0","3,1","3,2","3,3","4,0","4,1","4,2","4,3"}},
+        {"Dr.F", {"Differential Equations", "Statistics"},{"0,0","0,1""1,1","1,2","1,3", "2,0","2,1","2,2","2,3","3,0","3,1","3,2","3,3","4,0","4,1","4,2","4,3"}},
         {"Dr.G", {"Quantum Mechanics", "Nuclear Physics"},{"0,0","0,1","0,2","0,3", "1,0","1,1","1,2","1,3", "2,0","2,1","2,2","2,3","3,0","3,1","3,2","3,3","4,0","4,1","4,2","4,3"}},
         {"Dr.H", {"Modern Economics", "Renaissance History"},{"0,0","0,1","0,2","0,3", "1,0","1,1","1,2","1,3", "2,0","2,1","2,2","2,3","3,0","3,1","3,2","3,3","4,0","4,1","4,2","4,3"}},
-        {"Dr.I", {"Astrophysics", "Organic Chemistry"},{"0,0","0,1","0,2","0,3", "1,0","1,1","1,2","1,3", "2,0","2,1","2,2","2,3","3,0","3,1","3,2","3,3","4,0","4,1","4,2","4,3"}},
+        {"Dr.I", {"Astrophysics", "Organic Chemistry"},{"0,0","0,1","0,2","0,3", "2,0","2,1","2,2","2,3","3,0","3,1","3,2","3,3","4,0","4,1","4,2","4,3"}},
         {"Dr.J", {"Philosophy", "Evolutionary Biology"},{"0,0","0,1","0,2","0,3", "1,0","1,1","1,2","1,3", "2,0","2,1","2,2","2,3","3,0","3,1","3,2","3,3","4,0","4,1","4,2","4,3"}},
         {"Dr.K", {"Political Science", "Cognitive Psychology"},{"0,0","0,1","0,2","0,3", "1,0","1,1","1,2","1,3", "2,0","2,1","2,2","2,3","3,0","3,1","3,2","3,3","4,0","4,1","4,2","4,3"}},
         {"Dr.L", {"Computer Science", "Artificial Intelligence"},{"0,0","0,1","0,2","0,3", "1,0","1,1","1,2","1,3", "2,0","2,1","2,2","2,3","3,0","3,1","3,2","3,3","4,0","4,1","4,2","4,3"}},
         {"Dr.M", {"Machine Learning", "Game Theory"},{"0,0","0,1","0,2","0,3", "1,0","1,1","1,2","1,3", "2,0","2,1","2,2","2,3","3,0","3,1","3,2","3,3","4,0","4,1","4,2","4,3"}},
-        {"Dr.N", {"Cryptography"}, {"0,0","0,1","0,2","0,3", "1,0","1,1","1,2","1,3", "2,0","2,1","2,2","2,3","3,0","3,1","3,2","3,3","4,0","4,1","4,2","4,3"}}
+        {"Dr.N", {"Cryptography"}, {"0,0","0,1","0,2","0,3", "1,0","1,1","1,2","1,3" "2,0","2,1","2,2","2,3","3,0","3,1","3,2","3,3","4,0","4,1","4,2","4,3"}}
     };
     vector<Batch> batches = {
         {"Batch1", {
             {"Calculus", 2},
-            {"Linear Algebra", 1},
+            {"Linear Algebra", 2},
             {"Thermodynamics", 1},
-            {"Molecular Biology", 1},
+            {"Molecular Biology", 2},
             {"Statistics", 1},
             {"Inorganic Chemistry", 1},
             {"Biochemistry", 1}
