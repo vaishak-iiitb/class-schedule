@@ -17,7 +17,6 @@ IMT2025 4
 "Data Structures" "Rajesh Gupta" 4
 "Linear Algebra" "Arun Kumar" 4
 "Introduction to AI" "Preeti Nair" 2
-x
 IMT2026 6
 "Computer Networks" "Rahul Mehta" 4
 "Operating Systems" "Deepa Sharma" 4
