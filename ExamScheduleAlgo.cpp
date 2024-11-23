@@ -4,28 +4,63 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm>
+#include <unordered_map>
 
 using namespace std;
 
-struct Course {
+class Course {
+private:
     string batch;
     string name;
     string prof;
     int credits;
+
+public:
+    Course(string batch, string name, string prof, int credits)
+        : batch(batch), name(name), prof(prof), credits(credits) {}
+
+    string getBatch() const { return batch; }
+    string getName() const { return name; }
+    string getProf() const { return prof; }
+    int getCredits() const { return credits; }
 };
 
-struct ExamDetails {
+class ExamDetails {
+private:
     string batch;
     string name;
     int slot;
     string date;
     string room;
+
+public:
+    ExamDetails(string batch, string name, int slot, string date, string room)
+        : batch(batch), name(name), slot(slot), date(date), room(room) {}
+
+    string getBatch() const { return batch; }
+    string getName() const { return name; }
+    int getSlot() const { return slot; }
+    string getDate() const { return date; }
+    string getRoom() const { return room; }
+
+    static bool compareByDate(const ExamDetails &a, const ExamDetails &b) {
+        return a.getDate() < b.getDate();
+    }
 };
 
-struct RoomMatrixCell {
+class RoomMatrixCell {
+private:
     int slot;
     string batch;
     string subject;
+
+public:
+    RoomMatrixCell(int slot, string batch, string subject)
+        : slot(slot), batch(batch), subject(subject) {}
+
+    int getSlot() const { return slot; }
+    string getBatch() const { return batch; }
+    string getSubject() const { return subject; }
 };
 
 vector<Course> coursesList;
@@ -40,10 +75,6 @@ vector<ExamDetails> batch5Schedule;
 
 string slotTime(int slot) {
     return (slot == 1) ? "9:30 am - 12:30 pm" : "2:00 pm - 5:00 pm";
-}
-
-bool compareByDate(ExamDetails &a, ExamDetails &b) {
-    return a.date < b.date;
 }
 
 string getQuotedString(ifstream &inFile) {
@@ -85,7 +116,7 @@ vector<Course> loadCourseData() {
                 break;
             }
 
-            courses.push_back({batch, name, prof, credits});
+            courses.emplace_back(batch, name, prof, credits);
         }
     }
 
@@ -140,19 +171,19 @@ void makeSchedule(vector<Course> &courses, vector<string> &rooms, vector<string>
             return;
         }
 
-        roomMatrix[currentDate][currentRoom] = {currentSlot, course.batch, course.name};
+        roomMatrix[currentDate][currentRoom] = RoomMatrixCell(currentSlot, course.getBatch(), course.getName());
 
-        ExamDetails exam = {course.batch, course.name, currentSlot, dates[currentDate], rooms[currentRoom]};
+        ExamDetails exam(course.getBatch(), course.getName(), currentSlot, dates[currentDate], rooms[currentRoom]);
 
-        if (course.batch == "IMT2023") {
+        if (course.getBatch() == "IMT2023") {
             batch1Schedule.push_back(exam);
-        } else if (course.batch == "IMT2024") {
+        } else if (course.getBatch() == "IMT2024") {
             batch2Schedule.push_back(exam);
-        } else if (course.batch == "IMT2025") {
+        } else if (course.getBatch() == "IMT2025") {
             batch3Schedule.push_back(exam);
-        } else if (course.batch == "IMT2026") {
+        } else if (course.getBatch() == "IMT2026") {
             batch4Schedule.push_back(exam);
-        } else if (course.batch == "IMT2027") {
+        } else if (course.getBatch() == "IMT2027") {
             batch5Schedule.push_back(exam);
         }
 
@@ -183,7 +214,7 @@ void exportToCSV() {
 
     auto writeSchedule = [&outFile](vector<ExamDetails> &schedule) {
         for (auto &exam : schedule) {
-            outFile << exam.batch << "," << exam.name << "," << slotTime(exam.slot) << "," << exam.date << "," << exam.room << "\n";
+            outFile << exam.getBatch() << "," << exam.getName() << "," << slotTime(exam.getSlot()) << "," << exam.getDate() << "," << exam.getRoom() << "\n";
         }
     };
 
@@ -199,10 +230,10 @@ void exportToCSV() {
 
 void printSchedule(string batch, vector<ExamDetails> &schedule) {
     cout << batch << ":\n";
-    sort(schedule.begin(), schedule.end(), compareByDate);
+    sort(schedule.begin(), schedule.end(), ExamDetails::compareByDate);
     for (auto &exam : schedule) {
-        cout << "Name: " << exam.name << ", Slot: " << slotTime(exam.slot) << ", Date: " << exam.date
-             << ", Room: " << exam.room << endl;
+        cout << "Name: " << exam.getName() << ", Slot: " << slotTime(exam.getSlot()) << ", Date: " << exam.getDate()
+             << ", Room: " << exam.getRoom() << endl;
     }
     cout << "\n";
 }
@@ -212,18 +243,16 @@ int main() {
     roomsList = loadRoomData();
     dates = loadDateData();
 
-    // Check if the total number of courses exceeds the available slots
     int totalSlots = roomsList.size() * dates.size() * 2; // 2 slots per day per room
     if (coursesList.size() > totalSlots) {
         cout << "Error: Timetable is not possible as the total number of courses exceeds the available slots." << endl;
         return 1;
     }
 
-    // Check if the number of courses for any batch exceeds the available slots for that batch
     int maxSlotsPerBatch = dates.size() * 2; // 2 slots per day for each batch
     unordered_map<string, int> batchCourseCount;
     for (const auto &course : coursesList) {
-        batchCourseCount[course.batch]++;
+        batchCourseCount[course.getBatch()]++;
     }
     for (const auto &entry : batchCourseCount) {
         if (entry.second > maxSlotsPerBatch) {
@@ -232,7 +261,7 @@ int main() {
         }
     }
 
-    vector<vector<RoomMatrixCell>> roomMatrix(dates.size(), vector<RoomMatrixCell>(roomsList.size()));
+    vector<vector<RoomMatrixCell>> roomMatrix(dates.size(), vector<RoomMatrixCell>(roomsList.size(), RoomMatrixCell(0, "", "")));
     makeSchedule(coursesList, roomsList, dates, roomMatrix);
 
     cout << "\nExam Schedules:\n" << endl;
