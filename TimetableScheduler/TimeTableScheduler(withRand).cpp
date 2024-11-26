@@ -12,61 +12,80 @@
 
 using namespace std;
 
-
 class Professor {
-public:
+private:
     string name;
-    unordered_set<string> availability; // Format: "day,period"
-    vector<string> subjects; // Subjects the professor can teach
+    unordered_set<string> availability;
+    vector<string> subjects;
 
+public:
     Professor(const string& name, const vector<string>& subjects, const unordered_set<string>& availability)
         : name(name), subjects(subjects), availability(availability) {}
-};
 
+    string getName() const { return name; }
+    const unordered_set<string>& getAvailability() const { return availability; }
+    const vector<string>& getSubjects() const { return subjects; }
+
+    void setName(const string& newName) { name = newName; }
+    void setAvailability(const unordered_set<string>& newAvailability) { availability = newAvailability; }
+    void setSubjects(const vector<string>& newSubjects) { subjects = newSubjects; }
+};
 
 class Classroom {
-public:
+private:
     string id;
-    unordered_set<string> availability; // Format: "day,period"
+    unordered_set<string> availability;
 
+public:
     Classroom(const string& id, const unordered_set<string>& availability)
         : id(id), availability(availability) {}
-};
 
+    string getId() const { return id; }
+    const unordered_set<string>& getAvailability() const { return availability; }
+
+    void setId(const string& newId) { id = newId; }
+    void setAvailability(const unordered_set<string>& newAvailability) { availability = newAvailability; }
+};
 
 class Batch {
-public:
+private:
     string name;
-    unordered_map<string, int> required_subjects; // Subject -> Number of periods
+    unordered_map<string, int> required_subjects;
 
+public:
     Batch(const string& name, const unordered_map<string, int>& required_subjects)
         : name(name), required_subjects(required_subjects) {}
+
+    string getName() const { return name; }
+    const unordered_map<string, int>& getRequiredSubjects() const { return required_subjects; }
+
+    void setName(const string& newName) { name = newName; }
+    void setRequiredSubjects(const unordered_map<string, int>& newSubjects) { required_subjects = newSubjects; }
 };
 
-// TimetableScheduler class
 class TimetableScheduler {
 private:
     vector<Professor> professors;
     vector<Classroom> classrooms;
     vector<Batch> batches;
-    unordered_map<string, vector<vector<tuple<string, string, string>>>> timetable; // [batch][day][period] -> (professor, subject, classroom)
+    unordered_map<string, vector<vector<tuple<string, string, string>>>> timetable;
     random_device rd;
     mt19937 gen{rd()};
 
-    // Helper function to check constraints
-    bool isSlotAvailable(int day, int period, const string& professor, const string& subject, const string& classroom, const string& batch) {
-        // Check if the professor is available
+    bool isSlotAvailable(int day, int period, const string& professor, const string& subject, 
+                        const string& classroom, const string& batch) {
         string slotKey = to_string(day) + "," + to_string(period);
-        auto prof = find_if(professors.begin(), professors.end(), [&professor](const Professor& p) { return p.name == professor; });
-        if (prof == professors.end() || prof->availability.find(slotKey) == prof->availability.end())
+        
+        auto prof = find_if(professors.begin(), professors.end(), 
+            [&professor](const Professor& p) { return p.getName() == professor; });
+        if (prof == professors.end() || prof->getAvailability().find(slotKey) == prof->getAvailability().end())
             return false;
 
-        // Check if the classroom is available
-        auto room = find_if(classrooms.begin(), classrooms.end(), [&classroom](const Classroom& c) { return c.id == classroom; });
-        if (room == classrooms.end() || room->availability.find(slotKey) == room->availability.end())
+        auto room = find_if(classrooms.begin(), classrooms.end(), 
+            [&classroom](const Classroom& c) { return c.getId() == classroom; });
+        if (room == classrooms.end() || room->getAvailability().find(slotKey) == room->getAvailability().end())
             return false;
 
-        // Check for conflicts with other batches
         for (const auto& [otherBatchName, otherSchedule] : timetable) {
             if (otherBatchName == batch) continue;
             const auto& otherSlot = otherSchedule[day][period];
@@ -76,72 +95,67 @@ private:
         return true;
     }
 
-    // Backtracking function
     bool scheduleBatch(int batchIndex) {
         if (batchIndex >= batches.size())
-            return true; // All batches scheduled successfully
+            return true;
 
         Batch& currentBatch = batches[batchIndex];
-        auto& currentSchedule = timetable[currentBatch.name];
+        auto& currentSchedule = timetable[currentBatch.getName()];
 
-        for (const auto& [subject, periodsNeeded] : currentBatch.required_subjects) {
-            // Find the professor for this subject
+        for (const auto& [subject, periodsNeeded] : currentBatch.getRequiredSubjects()) {
             auto prof = find_if(professors.begin(), professors.end(), [&subject](const Professor& p) {
-                return find(p.subjects.begin(), p.subjects.end(), subject) != p.subjects.end();
+                const auto& subjects = p.getSubjects();
+                return find(subjects.begin(), subjects.end(), subject) != subjects.end();
             });
 
             if (prof == professors.end())
-                return false; // No professor available for the subject
+                return false;
 
             int hoursScheduled = 0;
             while (hoursScheduled < periodsNeeded) {
                 vector<tuple<int, int, string>> availableSlots;
+                
                 for (int day = 0; day < 5; ++day) {
                     for (int period = 0; period < 4; ++period) {
                         for (const auto& classroom : classrooms) {
                             if (get<0>(currentSchedule[day][period]).empty() &&
-                                isSlotAvailable(day, period, prof->name, subject, classroom.id, currentBatch.name)) {
-                                availableSlots.emplace_back(day, period, classroom.id);
+                                isSlotAvailable(day, period, prof->getName(), subject, 
+                                             classroom.getId(), currentBatch.getName())) {
+                                availableSlots.emplace_back(day, period, classroom.getId());
                             }
                         }
                     }
                 }
 
                 if (availableSlots.empty())
-                    return false; // No available slots; backtrack
+                    return false;
 
-                // Randomly pick an available slot
                 uniform_int_distribution<> dist(0, availableSlots.size() - 1);
                 auto [day, period, classroom] = availableSlots[dist(gen)];
-                currentSchedule[day][period] = {prof->name, subject, classroom};
+                currentSchedule[day][period] = {prof->getName(), subject, classroom};
                 hoursScheduled++;
             }
         }
 
-        // Recurse to schedule the next batch
-        if (scheduleBatch(batchIndex + 1))
-            return true;
-
-        // Backtrack
-        for (auto& day : currentSchedule)
-            for (auto& period : day)
-                period = {"", "", ""};
-        return false;
+        return scheduleBatch(batchIndex + 1);
     }
 
 public:
-    TimetableScheduler(const vector<Professor>& profs, const vector<Classroom>& rooms, const vector<Batch>& batchList)
-        : professors(profs), classrooms(rooms), batches(batchList) {
+    TimetableScheduler(const vector<Professor>& profs, const vector<Classroom>& rooms, const vector<Batch>& batchList): professors(profs), classrooms(rooms), batches(batchList) {
         for (const auto& batch : batches) {
-            timetable[batch.name] = vector<vector<tuple<string, string, string>>>(
+            timetable[batch.getName()] = vector<vector<tuple<string, string, string>>>(
                 5, vector<tuple<string, string, string>>(4, {"", "", ""}));
         }
     }
 
+    const vector<Professor>& getProfessors() const { return professors; }
+    const vector<Classroom>& getClassrooms() const { return classrooms; }
+    const vector<Batch>& getBatches() const { return batches; }
+    const auto& getTimetable() const { return timetable; }
+
     bool createTimetable() {
         return scheduleBatch(0);
     }
-
     // Function to print timetable
     void printTimetable() {
         int width = 25;
@@ -202,6 +216,7 @@ public:
         outFile.close();
     }
 };
+
 
 
 vector<Professor> readProfessorsFromFile(const string& filename) {
