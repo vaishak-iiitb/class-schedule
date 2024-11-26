@@ -144,23 +144,26 @@ public:
 
     // Function to print timetable
     void printTimetable() {
-        const int width = 30;
+        int width = 25;
+
+        vector<string> days = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday"};
+        vector<string> slots = {"9:30 - 11:00", "11:15 - 12:45", "1:30 - 3:00", "3:15 - 4:45"};
 
         for (const auto& [batchName, schedule] : timetable) {
-            cout << "\nTimetable for Batch: " << batchName << "\n";
+            cout << "\nTimetable for Batch: " << batchName << endl;
             cout << left << setw(width) << "Period\\Day";
-            for (int day = 0; day < 5; ++day)
-                cout << left << setw(width) << "Day " + to_string(day + 1);
-            cout << "\n";
+            for (const auto& day : days)
+                cout << left << setw(20) << day;
+            cout << endl;
 
-            for (int period = 0; period < 4; ++period) {
-                cout << left << setw(width) << "Period " + to_string(period + 1);
-                for (int day = 0; day < 5; ++day) {
+            for (int period = 0; period < slots.size(); ++period) {
+                cout << left << setw(width) << slots[period];
+                for (int day = 0; day < days.size(); ++day) {
                     const auto& [prof, subj, room] = schedule[day][period];
                     string display = (subj.empty() ? "Free" : subj + " by " + prof + " in " + room);
                     cout << left << setw(width) << display;
                 }
-                cout << "\n";
+                cout << endl;
             }
         }
     }
@@ -169,30 +172,33 @@ public:
     void exportToCSV() {
         ofstream outFile("Timetable(withRandom).csv");
         if (!outFile) {
-            cout << "Error opening file for writing.\n";
+            cout << "Error opening file for writing." << endl;
             return;
         }
 
-        for (const auto& [batchName, schedule] : timetable) {
-            outFile << "Timetable for Batch: " << batchName << "\n";
-            outFile << "Period\\Day,";
-            for (int day = 0; day < 5; ++day)
-                outFile << "Day " << day + 1 << ",";
-            outFile << "\n";
+        vector<string> days = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday"};
+        vector<string> slots = {"9:30 - 11:00", "11:15 - 12:45", "1:30 - 3:00", "3:15 - 4:45"};
 
-            for (int period = 0; period < 4; ++period) {
-                outFile << "Period " << period + 1 << ",";
-                for (int day = 0; day < 5; ++day) {
+        for (const auto& [batchName, schedule] : timetable) {
+            outFile << "Timetable for Batch: " << batchName << endl;
+            outFile << "Time\\Day,";
+            for (const auto& day : days)
+                outFile << day << ",";
+            outFile << endl;
+
+            for (int period = 0; period < slots.size(); ++period) {
+                outFile << slots[period] << ",";
+                for (int day = 0; day < days.size(); ++day) {
                     const auto& [prof, subj, room] = schedule[day][period];
                     string display = (subj.empty() ? "Free" : subj + " by " + prof + " in " + room);
                     outFile << display << ",";
                 }
-                outFile << "\n";
+                outFile << endl;
             }
-            outFile << "\n";
+            outFile << endl;
         }
 
-        cout << "Timetable(withRandom).csv\n";
+        cout << "Timetable exported to Timetable(withRandom).csv" << endl;
         outFile.close();
     }
 };
@@ -318,80 +324,3 @@ void makeTimetable(){
         cout << "Failed to create timetable.\n";
     }
 }
-
-/*
-// Main function
-int main() {
-    // vector<Professor> professors = {
-    //     {"Dr.A",{"Calculus", "Linear Algebra"}, {"0,0","0,1","0,2","0,3", "1,0","1,1","1,2","1,3", "2,0","2,1","2,2","2,3","3,0","3,1","3,2","3,3","4,0","4,1","4,2","4,3"}},
-    //     {"Dr.B",{"Thermodynamics", "Optics"}, {"0,0","0,1","0,2","0,3", "1,0","1,1","1,2","1,3", "2,0","2,1","2,2","2,3","3,0","3,1","3,2","3,3","4,0","4,1","4,2","4,3"}},
-    //     {"Dr.C", {"Inorganic Chemistry", "Biochemistry"},{"0,0","0,1","0,2","0,3", "1,0","1,1","1,2","1,3", "2,0","2,1","2,2","2,3","3,0","3,1","3,2","3,3","4,0","4,1","4,2","4,3"}},
-    //     {"Dr.D", {"Molecular Biology", "Genetics"}, {"0,0","0,1","0,2","0,3", "1,0","1,1","1,2","1,3", "2,0","2,1","2,2","2,3","3,0","3,1","3,2","3,3","4,0","4,1","4,2","4,3"}},
-    //     {"Dr.E", {"Ancient Civilizations", "Medieval History"},{"0,0","0,1","0,2","0,3", "1,0","1,1","1,2","1,3", "2,0","2,1","2,2","2,3","3,0","3,1","3,2","3,3","4,0","4,1","4,2","4,3"}},
-    //     {"Dr.F", {"Differential Equations", "Statistics"},{"0,0","0,1","0,2","0,3", "1,0","1,1","1,2","1,3", "2,0","2,1","2,2","2,3","3,0","3,1","3,2","3,3","4,0","4,1","4,2","4,3"}},
-    //     {"Dr.G", {"Quantum Mechanics", "Nuclear Physics"},{"0,0","0,1","0,2","0,3", "1,0","1,1","1,2","1,3", "2,0","2,1","2,2","2,3","3,0","3,1","3,2","3,3","4,0","4,1","4,2","4,3"}},
-    //     {"Dr.H", {"Modern Economics", "Renaissance History"},{"0,0","0,1","0,2","0,3", "1,0","1,1","1,2","1,3", "2,0","2,1","2,2","2,3","3,0","3,1","3,2","3,3","4,0","4,1","4,2","4,3"}},
-    //     {"Dr.I", {"Astrophysics", "Organic Chemistry"},{"0,0","0,1","0,2","0,3", "1,0","1,1","1,2","1,3", "2,0","2,1","2,2","2,3","3,0","3,1","3,2","3,3","4,0","4,1","4,2","4,3"}},
-    //     {"Dr.J", {"Philosophy", "Evolutionary Biology"},{"0,0","0,1","0,2","0,3", "1,0","1,1","1,2","1,3", "2,0","2,1","2,2","2,3","3,0","3,1","3,2","3,3","4,0","4,1","4,2","4,3"}},
-    //     {"Dr.K", {"Political Science", "Cognitive Psychology"},{"0,0","0,1","0,2","0,3", "1,0","1,1","1,2","1,3", "2,0","2,1","2,2","2,3","3,0","3,1","3,2","3,3","4,0","4,1","4,2","4,3"}},
-    //     {"Dr.L", {"Computer Science", "Artificial Intelligence"},{"0,0","0,1","0,2","0,3", "1,0","1,1","1,2","1,3", "2,0","2,1","2,2","2,3","3,0","3,1","3,2","3,3","4,0","4,1","4,2","4,3"}},
-    //     {"Dr.M", {"Machine Learning", "Game Theory"},{"0,0","0,1","0,2","0,3", "1,0","1,1","1,2","1,3", "2,0","2,1","2,2","2,3","3,0","3,1","3,2","3,3","4,0","4,1","4,2","4,3"}},
-    //     {"Dr.N", {"Cryptography"}, {"0,0","0,1","0,2","0,3", "1,0","1,1","1,2","1,3", "2,0","2,1","2,2","2,3","3,0","3,1","3,2","3,3","4,0","4,1","4,2","4,3"}}
-    // };
-     //
-    // vector<Batch> batches = {
-    //     {"Batch1", {
-    //         {"Calculus", 2},
-    //         {"Linear Algebra", 1},
-    //         {"Thermodynamics", 1},
-    //         {"Molecular Biology", 1},
-    //         {"Statistics", 1},
-    //         {"Inorganic Chemistry", 1},
-    //         {"Biochemistry", 1}
-    //     }}, // Total: 7 periods
-    //     {"Batch2", {
-    //         {"Optics", 2},
-    //         {"Quantum Mechanics", 1},
-    //         {"Differential Equations", 1},
-    //         {"Ancient Civilizations", 1},
-    //         {"Genetics", 1}
-    //     }}, // Total: 5 periods
-    //     {"Batch3", {
-    //         {"Nuclear Physics", 2},
-    //         {"Medieval History", 1},
-    //         {"Modern Economics", 1},
-    //         {"Renaissance History", 1}
-    //     }}, // Total: 4 periods
-    //     {"Batch4", {
-    //         {"Astrophysics", 2},
-    //         {"Organic Chemistry", 1},
-    //         {"Philosophy", 1},
-    //         {"Evolutionary Biology", 1},
-    //         {"Political Science", 1},
-    //         {"Cognitive Psychology", 1}
-    //     }}, // Total: 6 periods
-    //     {"Batch5", {
-    //         {"Computer Science", 2},
-    //         {"Artificial Intelligence", 1},
-    //         {"Machine Learning", 1},
-    //         {"Game Theory", 1},
-    //         {"Cryptography", 1}
-    //     }} // Total: 5 periods
-    // };
-    vector<Batch> batches = readBatchesFromFile("courses.txt");
-    vector<Classroom> classrooms = readClassroomsFromFile("rooms.txt");
-    vector<Professor> professors = readProfessorsFromFile("Professors.txt");
-
-
-
-    TimetableScheduler scheduler(professors, classrooms, batches);
-    if (scheduler.createTimetable()) {
-        cout << "Timetable created successfully!\n";
-        scheduler.printTimetable();
-        scheduler.exportToCSV();
-    } else {
-        cout << "Failed to create timetable.\n";
-    }
-
-    return 0;
-    }*/
