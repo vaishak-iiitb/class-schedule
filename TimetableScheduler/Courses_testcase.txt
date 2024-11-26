@@ -1,0 +1,37 @@
+Courses
+IMT2024 7
+"Math-1" "Manisha Kulkarni" 4
+"Differential Equations" "Priyanka Das" 2
+"Thermodynamics" "B Ashok" 2
+"English" "Priyanka Sharma" 2
+"Digital Design" "Kurian Polachan" 4
+"Renaissance History" "V Sridhar" 2
+"Computer Networks" "Amrita Mishra" 4
+
+IMT2023 5
+"Optics" "B Ashok" 4
+"Math-2" "Manisha Kulkarni" 4
+"Quantum Mechanics" "Shiva M" 4
+"Probability" "Amrita Mishra" 4
+"Statistics" "Priyanka Das" 4
+
+IMT2022 4
+"Nuclear Physics" "Shiva M" 4
+"Verilog" "Kurian Polachan" 2
+"Modern Economics" "V Sridhar" 4
+"Technical Communication" "Priyanka Sharma" 2
+
+IMT2021 6
+"Discrete Mathematics" "Ashish Choudhary" 4
+"Data Structures and Algorithms" "V Muralidhara" 4
+"Machine Learning" "G Srinivasaraghavan" 4
+"Artificial Intelligence" "R Chandrashekar" 4
+"Cognitive Psychology" "Dr.K" 2
+"Computer Architecture" "Nanditha Rao" 4
+
+IMT2020 5
+"Computer Science" "R Chandrashekar" 4
+"DSA Lab" "V Muralidhara" 2
+"Cryptography" "Ashish Choudhary" 4
+"Political Science" "Amit Prakash" 2
+"Game Theory" "G Srinivasaraghavan" 2
