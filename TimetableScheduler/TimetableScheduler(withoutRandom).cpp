@@ -128,7 +128,7 @@ public:
         return scheduleBatch(0);
     }
 
-    void printTimetable() {
+     void printTimetable() {
         int width = 25;
 
         vector<string> days = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday"};
@@ -153,23 +153,27 @@ public:
         }
     }
 
+    // Function to export timetable to CSV
     void exportToCSV() {
-        ofstream outFile("Timetable(withoutRandom).csv");
+        ofstream outFile("Timetable(withRandom).csv");
         if (!outFile) {
             cout << "Error opening file for writing." << endl;
             return;
         }
 
+        vector<string> days = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday"};
+        vector<string> slots = {"9:30 - 11:00", "11:15 - 12:45", "1:30 - 3:00", "3:15 - 4:45"};
+
         for (const auto& [batchName, schedule] : timetable) {
             outFile << "Timetable for Batch: " << batchName << endl;
-            outFile << "Period\\Day,";
-            for (int day = 0; day < 5; ++day)
-                outFile << "Day " << day + 1 << ",";
+            outFile << "Time\\Day,";
+            for (const auto& day : days)
+                outFile << day << ",";
             outFile << endl;
 
-            for (int period = 0; period < 4; ++period) {
-                outFile << "Period " << period + 1 << ",";
-                for (int day = 0; day < 5; ++day) {
+            for (int period = 0; period < slots.size(); ++period) {
+                outFile << slots[period] << ",";
+                for (int day = 0; day < days.size(); ++day) {
                     const auto& [prof, subj, room] = schedule[day][period];
                     string display = (subj.empty() ? "Free" : subj + " by " + prof + " in " + room);
                     outFile << display << ",";
@@ -179,95 +183,150 @@ public:
             outFile << endl;
         }
 
-        cout << "Timetable exported to Timetable(withoutRandom).csv" << endl;
+        cout << "Timetable exported to Timetable(withRandom).csv" << endl;
         outFile.close();
     }
 };
 
-int main() {
-    vector<Professor> professors = {
-        {"Dr.A",{"Calculus", "Linear Algebra"}, {"0,0","0,1","0,2","0,3", "1,0","1,1","1,2","1,3", "2,0","2,1","2,2","2,3","3,0","3,1","3,2","3,3","4,0","4,1","4,2","4,3"}},
-        {"Dr.B",{"Thermodynamics", "Optics"}, {"0,0","0,1","0,2","0,3", "1,0","1,1","1,2","1,3", "2,0","2,1","2,2","2,3","3,0","3,1","3,2","3,3","4,0","4,1","4,2","4,3"}},
-        {"Dr.C", {"Inorganic Chemistry", "Biochemistry"},{"0,0","0,1","0,2","0,3", "1,0","1,1","1,2","1,3", "2,0","2,1","2,2","2,3","3,0","3,1","3,2","3,3","4,0","4,1","4,2","4,3"}},
-        {"Dr.D", {"Molecular Biology", "Genetics"}, {"0,0","0,1","0,2","0,3", "1,0","1,1","1,2","1,3", "2,0","2,1","2,2","2,3","3,0","3,1","3,2","3,3","4,0","4,1","4,2","4,3"}},
-        {"Dr.E", {"Ancient Civilizations", "Medieval History"},{"0,0","0,1","0,2","0,3", "1,0","1,1","1,2","1,3", "2,0","2,1","2,2","2,3","3,0","3,1","3,2","3,3","4,0","4,1","4,2","4,3"}},
-        {"Dr.F", {"Differential Equations", "Statistics"},{"0,0","0,1""1,1","1,2","1,3", "2,0","2,1","2,2","2,3","3,0","3,1","3,2","3,3","4,0","4,1","4,2","4,3"}},
-        {"Dr.G", {"Quantum Mechanics", "Nuclear Physics"},{"0,0","0,1","0,2","0,3", "1,0","1,1","1,2","1,3", "2,0","2,1","2,2","2,3","3,0","3,1","3,2","3,3","4,0","4,1","4,2","4,3"}},
-        {"Dr.H", {"Modern Economics", "Renaissance History"},{"0,0","0,1","0,2","0,3", "1,0","1,1","1,2","1,3", "2,0","2,1","2,2","2,3","3,0","3,1","3,2","3,3","4,0","4,1","4,2","4,3"}},
-        {"Dr.I", {"Astrophysics", "Organic Chemistry"},{"0,0","0,1","0,2","0,3", "2,0","2,1","2,2","2,3","3,0","3,1","3,2","3,3","4,0","4,1","4,2","4,3"}},
-        {"Dr.J", {"Philosophy", "Evolutionary Biology"},{"0,0","0,1","0,2","0,3", "1,0","1,1","1,2","1,3", "2,0","2,1","2,2","2,3","3,0","3,1","3,2","3,3","4,0","4,1","4,2","4,3"}},
-        {"Dr.K", {"Political Science", "Cognitive Psychology"},{"0,0","0,1","0,2","0,3", "1,0","1,1","1,2","1,3", "2,0","2,1","2,2","2,3","3,0","3,1","3,2","3,3","4,0","4,1","4,2","4,3"}},
-        {"Dr.L", {"Computer Science", "Artificial Intelligence"},{"0,0","0,1","0,2","0,3", "1,0","1,1","1,2","1,3", "2,0","2,1","2,2","2,3","3,0","3,1","3,2","3,3","4,0","4,1","4,2","4,3"}},
-        {"Dr.M", {"Machine Learning", "Game Theory"},{"0,0","0,1","0,2","0,3", "1,0","1,1","1,2","1,3", "2,0","2,1","2,2","2,3","3,0","3,1","3,2","3,3","4,0","4,1","4,2","4,3"}},
-        {"Dr.N", {"Cryptography"}, {"0,0","0,1","0,2","0,3", "1,0","1,1","1,2","1,3" "2,0","2,1","2,2","2,3","3,0","3,1","3,2","3,3","4,0","4,1","4,2","4,3"}}
-    };
-    vector<Batch> batches = {
-        {"Batch1", {
-            {"Calculus", 2},
-            {"Linear Algebra", 2},
-            {"Thermodynamics", 1},
-            {"Molecular Biology", 2},
-            {"Statistics", 1},
-            {"Inorganic Chemistry", 1},
-            {"Biochemistry", 1}
-        }},
-        {"Batch2", {
-            {"Optics", 2},
-            {"Quantum Mechanics", 1},
-            {"Differential Equations", 1},
-            {"Ancient Civilizations", 1},
-            {"Genetics", 1}
-        }},
-        {"Batch3", {
-            {"Nuclear Physics", 2},
-            {"Medieval History", 1},
-            {"Modern Economics", 1},
-            {"Renaissance History", 1}
-        }}, 
-        {"Batch4", {
-            {"Astrophysics", 2},
-            {"Organic Chemistry", 1},
-            {"Philosophy", 1},
-            {"Evolutionary Biology", 1},
-            {"Political Science", 1},
-            {"Cognitive Psychology", 1}
-        }}, 
-        {"Batch5", {
-            {"Computer Science", 2},
-            {"Artificial Intelligence", 1},
-            {"Machine Learning", 1},
-            {"Game Theory", 1},
-            {"Cryptography", 1}
-        }} 
-    };
 
 
-    vector<Classroom> classrooms = {
-        {"Room1", {"0,0","0,1","0,2","0,3", "1,0","1,1","1,2","1,3", "2,0","2,1","2,2","2,3","3,0","3,1","3,2","3,3","4,0","4,1","4,2","4,3"}},
-        {"Room2", {"0,0","0,1","0,2","0,3", "1,0","1,1","1,2","1,3", "2,0","2,1","2,2","2,3","3,0","3,1","3,2","3,3","4,0","4,1","4,2","4,3"}},
-        {"Room3", {"0,0","0,1","0,2","0,3", "1,0","1,1","1,2","1,3", "2,0","2,1","2,2","2,3","3,0","3,1","3,2","3,3","4,0","4,1","4,2","4,3"}},
-        {"Room4", {"0,0","0,1","0,2","0,3", "1,0","1,1","1,2","1,3", "2,0","2,1","2,2","2,3","3,0","3,1","3,2","3,3","4,0","4,1","4,2","4,3"}},
-        {"Room5", {"0,0","0,1","0,2","0,3", "1,0","1,1","1,2","1,3", "2,0","2,1","2,2","2,3","3,0","3,1","3,2","3,3","4,0","4,1","4,2","4,3"}}
-    };
+vector<Professor> readProfessorsFromFile(const string& filename) {
+    vector<Professor> professors;
+    ifstream file(filename);
+    string line;
 
-    unordered_map<string, vector<vector<tuple<string, string, string>>>> timetable;
-    for (const auto& batch : batches) {
-        timetable[batch.name] = vector<vector<tuple<string, string, string>>>(5, vector<tuple<string, string, string>>(4, {"", "", ""}));
+    while (getline(file, line)) {
+        stringstream ss(line);
+        string name, subjectsStr, availabilityStr;
+
+        // Read name
+        getline(ss, name, '\"');
+        getline(ss, name, '\"');
+
+        // Read subjects
+        getline(ss, subjectsStr, '\"');
+        getline(ss, subjectsStr, '\"');
+
+        // Read availability
+        getline(ss, availabilityStr, '\"');
+        getline(ss, availabilityStr, '\"');
+
+        vector<string> subjects;
+        stringstream ssSubjects(subjectsStr);
+        string subject;
+        while (getline(ssSubjects, subject, ',')) {
+            subjects.push_back(subject);
+        }
+
+        unordered_set<string> availability;
+        stringstream ssAvailability(availabilityStr);
+        string slot;
+        while (getline(ssAvailability, slot, ')')) {
+            if (!slot.empty() && slot[0] == '(') {
+                slot = slot.substr(1); // Remove the leading '('
+                availability.insert(slot);
+            }
+        }
+
+        professors.emplace_back(name, subjects, availability);
     }
 
-    // Initialize TimetableScheduler object
-    TimetableScheduler scheduler(professors, classrooms, batches);
+    return professors;
+}
+vector<Batch> readBatchesFromFile(const string& filename) {
+    vector<Batch> batches;
+    ifstream file(filename);
+    string line;
 
-    // Create timetable and check success
+    while (getline(file, line)) {
+        if (line.empty()) continue;
+
+        stringstream ss(line);
+        string batchName;
+        int numCourses;
+        ss >> batchName >> numCourses;
+
+        unordered_map<string, int> required_subjects;
+        for (int i = 0; i < numCourses; ++i) {
+            getline(file, line);
+            stringstream courseStream(line);
+            string courseName, professorName;
+            int hours;
+            courseStream >> quoted(courseName) >> quoted(professorName) >> hours;
+            required_subjects[courseName] = hours;
+        }
+
+        batches.push_back(Batch(batchName, required_subjects));
+    }
+
+    return batches;
+}
+vector<Classroom> readClassroomsFromFile(const string& filename) {
+    vector<Classroom> classrooms;
+    ifstream file(filename);
+    string line;
+
+    while (getline(file, line)) {
+        stringstream ss(line);
+        string name, availabilityStr;
+
+        // Read name
+        getline(ss, name, '\"');
+        getline(ss, name, '\"');
+
+        // Read availability
+        getline(ss, availabilityStr, '\"');
+        getline(ss, availabilityStr, '\"');
+
+        unordered_set<string> availability;
+        stringstream ssAvailability(availabilityStr);
+        string slot;
+        while (getline(ssAvailability, slot, ')')) {
+            if (!slot.empty() && slot[0] == '(') {
+                slot = slot.substr(1); // Remove the leading '('
+                availability.insert(slot);
+            }
+        }
+
+        classrooms.emplace_back(name, availability);
+    }
+
+    return classrooms;
+}
+
+void makeTimetable(){
+    vector<Batch> batches = readBatchesFromFile("courses.txt");
+    vector<Classroom> classrooms = readClassroomsFromFile("rooms.txt");
+    vector<Professor> professors = readProfessorsFromFile("Professors.txt");
+
+
+
+    TimetableScheduler scheduler(professors, classrooms, batches);
     if (scheduler.createTimetable()) {
-        cout << "Timetable created successfully!" << endl;
-        // Print the timetable
+        cout << "Timetable created successfully!\n";
         scheduler.printTimetable();
-        // Export the timetable to a CSV file
         scheduler.exportToCSV();
     } else {
-        cout << "Failed to create timetable." << endl;
+        cout << "Failed to create timetable.\n";
     }
-
-    return 0;
 }
+
+
+
+
+
+// Main function
+// int main() {
+//     vector<Batch> batches = readBatchesFromFile("courses.txt");
+//     vector<Classroom> classrooms = readClassroomsFromFile("rooms.txt");
+//     vector<Professor> professors = readProfessorsFromFile("Professors.txt");
+//     TimetableScheduler scheduler(professors, classrooms, batches);
+//     if (scheduler.createTimetable()) {
+//         cout << "Timetable created successfully!\n";
+//         scheduler.printTimetable();
+//         scheduler.exportToCSV();
+//     } else {
+//         cout << "Failed to create timetable.\n";
+//     }
+//     return 0;
+//     }
