@@ -22,7 +22,7 @@ IMT2021 6
 "Data Structures and Algorithms" "V Muralidhara" 4
 "Machine Learning" "G Srinivasaraghavan" 4
 "Artificial Intelligence" "R Chandrashekar" 4
-"Cognitive Psychology" "Dr.K" 2
+"Cognitive Psychology" "Amit Prakash" 2
 "Computer Architecture" "Nanditha Rao" 4
 IMT2020 5
 "Computer Science" "R Chandrashekar" 4
