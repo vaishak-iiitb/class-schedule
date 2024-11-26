@@ -39,150 +39,150 @@ public:
         : name(name), required_subjects(required_subjects) {}
 };
 
-// Helper function to check constraints
-bool isSlotAvailable(
-    int day, int period, const string& professor, const string& subject,
-    const string& classroom, const string& batch,
-    const vector<Professor>& professors, const vector<Classroom>& classrooms,
-    const unordered_map<string, vector<vector<tuple<string, string, string>>>>& timetable) {
-    
-    string slotKey = to_string(day) + "," + to_string(period);
+class TimetableScheduler {
+private:
+    vector<Professor> professors;
+    vector<Classroom> classrooms;
+    vector<Batch> batches;
+    unordered_map<string, vector<vector<tuple<string, string, string>>>> timetable;
 
-    auto prof = find_if(professors.begin(), professors.end(),
-        [&professor](const Professor& p) { return p.name == professor; });
-    if (prof == professors.end() || prof->availability.find(slotKey) == prof->availability.end())
-        return false;
+    bool isSlotAvailable(int day, int period, const string& professor, const string& subject,
+                         const string& classroom, const string& batch) {
+        string slotKey = to_string(day) + "," + to_string(period);
 
-    auto room = find_if(classrooms.begin(), classrooms.end(),
-        [&classroom](const Classroom& c) { return c.id == classroom; });
-    if (room == classrooms.end() || room->availability.find(slotKey) == room->availability.end())
-        return false;
-
-    for (const auto& [otherBatchName, otherSchedule] : timetable) {
-        if (otherBatchName == batch) continue;
-        const auto& otherSlot = otherSchedule[day][period];
-        if (!get<0>(otherSlot).empty() && (get<0>(otherSlot) == professor || get<2>(otherSlot) == classroom))
-            return false;
-    }
-
-    return true;
-}
-
-// Backtracking function
-bool scheduleBatch(
-    int batchIndex, vector<Batch>& batches, const vector<Professor>& professors,
-    const vector<Classroom>& classrooms,
-    unordered_map<string, vector<vector<tuple<string, string, string>>>>& timetable) {
-
-    if (batchIndex >= batches.size())
-        return true; // All batches scheduled successfully
-
-    Batch& currentBatch = batches[batchIndex];
-    auto& currentSchedule = timetable[currentBatch.name];
-
-    for (auto& [subject, periodsNeeded] : currentBatch.required_subjects) {
         auto prof = find_if(professors.begin(), professors.end(),
-            [&subject](const Professor& p) { return find(p.subjects.begin(), p.subjects.end(), subject) != p.subjects.end(); });
-        if (prof == professors.end())
+            [&professor](const Professor& p) { return p.name == professor; });
+        if (prof == professors.end() || prof->availability.find(slotKey) == prof->availability.end())
             return false;
 
-        int hoursScheduled = 0;
-        while (hoursScheduled < periodsNeeded) {
-            vector<tuple<int, int, string>> availableSlots;
-            for (int day = 0; day < 5; ++day) {
-                for (int period = 0; period < 4; ++period) {
-                    for (const auto& classroom : classrooms) {
-                        if (get<0>(currentSchedule[day][period]).empty() &&
-                            isSlotAvailable(day, period, prof->name, subject, classroom.id, currentBatch.name, professors, classrooms, timetable)) {
-                            availableSlots.emplace_back(day, period, classroom.id);
-                        }
-                    }
-                }
-            }
+        auto room = find_if(classrooms.begin(), classrooms.end(),
+            [&classroom](const Classroom& c) { return c.id == classroom; });
+        if (room == classrooms.end() || room->availability.find(slotKey) == room->availability.end())
+            return false;
 
-            if (availableSlots.empty())
-                return false; // No available slots; backtrack
-
-            auto [day, period, classroom] = availableSlots.front();
-            currentSchedule[day][period] = {prof->name, subject, classroom};
-            hoursScheduled++;
+        for (const auto& [otherBatchName, otherSchedule] : timetable) {
+            if (otherBatchName == batch) continue;
+            const auto& otherSlot = otherSchedule[day][period];
+            if (!get<0>(otherSlot).empty() && (get<0>(otherSlot) == professor || get<2>(otherSlot) == classroom))
+                return false;
         }
-    }
 
-    if (scheduleBatch(batchIndex + 1, batches, professors, classrooms, timetable))
         return true;
+    }
 
-    for (auto& day : currentSchedule)
-        for (auto& period : day)
-            period = {"", "", ""};
-    return false;
-}
+    bool scheduleBatch(int batchIndex) {
+        if (batchIndex >= batches.size())
+            return true;
 
-// Wrapper function
-bool createTimetable(
-    vector<Professor>& professors, vector<Classroom>& classrooms,
-    vector<Batch>& batches,
-    unordered_map<string, vector<vector<tuple<string, string, string>>>>& timetable) {
+        Batch& currentBatch = batches[batchIndex];
+        auto& currentSchedule = timetable[currentBatch.name];
 
-    for (auto& batch : batches)
-        timetable[batch.name] = vector<vector<tuple<string, string, string>>>(5, vector<tuple<string, string, string>>(4, {"", "", ""}));
+        for (auto& [subject, periodsNeeded] : currentBatch.required_subjects) {
+            auto prof = find_if(professors.begin(), professors.end(),
+                [&subject](const Professor& p) { return find(p.subjects.begin(), p.subjects.end(), subject) != p.subjects.end(); });
+            if (prof == professors.end())
+                return false;
 
-    return scheduleBatch(0, batches, professors, classrooms, timetable);
-}
-
-// Function to print timetable
-void printTimetable(const unordered_map<string, vector<vector<tuple<string, string, string>>>>& timetable) {
-    const int width = 30;
-
-    for (const auto& [batchName, schedule] : timetable) {
-        cout << "\nTimetable for Batch: " << batchName << "\n";
-        cout << left << setw(width) << "Period\\Day";
-        for (int day = 0; day < 5; ++day)
-            cout << left << setw(width) << "Day " + to_string(day + 1);
-        cout << "\n";
-
-        for (int period = 0; period < 4; ++period) {
-            cout << left << setw(width) << "Period " + to_string(period + 1);
-            for (int day = 0; day < 5; ++day) {
-                const auto& [prof, subj, room] = schedule[day][period];
-                string display = (subj.empty() ? "Free" : subj + " by " + prof + " in " + room);
-                cout << left << setw(width) << display;
+            int hoursScheduled = 0;
+            while (hoursScheduled < periodsNeeded) {
+                for (int day = 0; day < 5; ++day) {
+                    for (int period = 0; period < 4; ++period) {
+                        for (const auto& classroom : classrooms) {
+                            if (get<0>(currentSchedule[day][period]).empty() &&
+                                isSlotAvailable(day, period, prof->name, subject, classroom.id, currentBatch.name)) {
+                                currentSchedule[day][period] = {prof->name, subject, classroom.id};
+                                hoursScheduled++;
+                                if (hoursScheduled >= periodsNeeded)
+                                    break;
+                            }
+                        }
+                        if (hoursScheduled >= periodsNeeded)
+                            break;
+                    }
+                    if (hoursScheduled >= periodsNeeded)
+                        break;
+                }
+                if (hoursScheduled < periodsNeeded)
+                    return false; // No available slots; backtrack
             }
-            cout << "\n";
+        }
+
+        if (scheduleBatch(batchIndex + 1))
+            return true;
+
+        for (auto& day : currentSchedule)
+            for (auto& period : day)
+                period = {"", "", ""};
+        return false;
+    }
+
+public:
+    TimetableScheduler(const vector<Professor>& profs, const vector<Classroom>& rooms, const vector<Batch>& batchList)
+        : professors(profs), classrooms(rooms), batches(batchList) {
+        for (const auto& batch : batches) {
+            timetable[batch.name] = vector<vector<tuple<string, string, string>>>(5, vector<tuple<string, string, string>>(4, {"", "", ""}));
         }
     }
-}
 
-// Function to export timetable to CSV
-void exportToCSV(const unordered_map<string, vector<vector<tuple<string, string, string>>>>& timetable) {
-    ofstream outFile("Timetable.csv");
-    if (!outFile) {
-        cout << "Error opening file for writing.\n";
-        return;
+    bool createTimetable() {
+        return scheduleBatch(0);
     }
 
-    for (const auto& [batchName, schedule] : timetable) {
-        outFile << "Timetable for Batch: " << batchName << "\n";
-        outFile << "Period\\Day,";
-        for (int day = 0; day < 5; ++day)
-            outFile << "Day " << day + 1 << ",";
-        outFile << "\n";
+    void printTimetable() {
+        int width = 25;
 
-        for (int period = 0; period < 4; ++period) {
-            outFile << "Period " << period + 1 << ",";
-            for (int day = 0; day < 5; ++day) {
-                const auto& [prof, subj, room] = schedule[day][period];
-                string display = (subj.empty() ? "Free" : subj + " by " + prof + " in " + room);
-                outFile << display << ",";
+        vector<string> days = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday"};
+        vector<string> slots = {"9:30 - 11:00", "11:15 - 12:45", "1:30 - 3:00", "3:15 - 4:45"};
+
+        for (const auto& [batchName, schedule] : timetable) {
+            cout << "\nTimetable for Batch: " << batchName << endl;
+            cout << left << setw(width) << "Period\\Day";
+            for (const auto& day : days)
+                cout << left << setw(20) << day;
+            cout << endl;
+
+            for (int period = 0; period < slots.size(); ++period) {
+                cout << left << setw(width) << slots[period];
+                for (int day = 0; day < days.size(); ++day) {
+                    const auto& [prof, subj, room] = schedule[day][period];
+                    string display = (subj.empty() ? "Free" : subj + " by " + prof + " in " + room);
+                    cout << left << setw(width) << display;
+                }
+                cout << endl;
             }
-            outFile << "\n";
         }
-        outFile << "\n";
     }
 
-    cout << "Timetable exported to Timetable.csv\n";
-    outFile.close();
-}
+    void exportToCSV() {
+        ofstream outFile("Timetable(withoutRandom).csv");
+        if (!outFile) {
+            cout << "Error opening file for writing." << endl;
+            return;
+        }
+
+        for (const auto& [batchName, schedule] : timetable) {
+            outFile << "Timetable for Batch: " << batchName << endl;
+            outFile << "Period\\Day,";
+            for (int day = 0; day < 5; ++day)
+                outFile << "Day " << day + 1 << ",";
+            outFile << endl;
+
+            for (int period = 0; period < 4; ++period) {
+                outFile << "Period " << period + 1 << ",";
+                for (int day = 0; day < 5; ++day) {
+                    const auto& [prof, subj, room] = schedule[day][period];
+                    string display = (subj.empty() ? "Free" : subj + " by " + prof + " in " + room);
+                    outFile << display << ",";
+                }
+                outFile << endl;
+            }
+            outFile << endl;
+        }
+
+        cout << "Timetable exported to Timetable(withoutRandom).csv" << endl;
+        outFile.close();
+    }
+};
 
 int main() {
     vector<Professor> professors = {
@@ -252,16 +252,21 @@ int main() {
 
     unordered_map<string, vector<vector<tuple<string, string, string>>>> timetable;
     for (const auto& batch : batches) {
-        timetable[batch.name] = vector<vector<tuple<string, string, string>>>(
-            5, vector<tuple<string, string, string>>(4, {"", "", ""}));
+        timetable[batch.name] = vector<vector<tuple<string, string, string>>>(5, vector<tuple<string, string, string>>(4, {"", "", ""}));
     }
 
-    if (createTimetable(professors, classrooms, batches, timetable)) {
-        cout << "Timetable created successfully!\n";
-        printTimetable(timetable);
-        exportToCSV(timetable);
+    // Initialize TimetableScheduler object
+    TimetableScheduler scheduler(professors, classrooms, batches);
+
+    // Create timetable and check success
+    if (scheduler.createTimetable()) {
+        cout << "Timetable created successfully!" << endl;
+        // Print the timetable
+        scheduler.printTimetable();
+        // Export the timetable to a CSV file
+        scheduler.exportToCSV();
     } else {
-        cout << "Failed to create timetable.\n";
+        cout << "Failed to create timetable." << endl;
     }
 
     return 0;
