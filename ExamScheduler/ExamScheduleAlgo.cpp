@@ -90,89 +90,6 @@ string slotTime(int slot) {
     return (slot == 1) ? "9:30 am - 12:30 pm" : "2:00 pm - 5:00 pm";
 }
 
-string getQuotedString(ifstream &inFile) {
-    string quoted;
-    inFile >> ws; // Consume any leading whitespace
-    if (inFile.peek() == '\"') {
-        getline(inFile, quoted, '\"'); // Skip the initial quote
-        getline(inFile, quoted, '\"'); // Read the actual content
-    } else {
-        inFile >> quoted; // Fallback for unquoted strings
-    }
-    return quoted;
-}
-
-vector<Course> loadCourseData() {
-    ifstream inFile("courses.txt");
-
-    if (!inFile.is_open()) {
-        cout << "Error: courses.txt does not exist or cannot be opened." << endl;
-        return {};
-    }
-
-    cout << "Data successfully loaded from file." << endl;
-    vector<Course> courses;
-    string batch;
-    int batchCount;
-
-    while (inFile >> batch >> batchCount) {
-        for (int i = 0; i < batchCount; i++) {
-            string name, prof;
-            int credits;
-
-            name = getQuotedString(inFile); // Read quoted name
-            prof = getQuotedString(inFile); // Read quoted prof
-            inFile >> credits;
-
-            if (inFile.fail()) {
-                cout << "Error reading course details for batch: " << batch << endl;
-                break;
-            }
-
-            courses.emplace_back(batch, name, prof, credits);
-        }
-    }
-
-    inFile.close();
-    return courses;
-}
-
-vector<string> loadRoomData() {
-    ifstream inFile("rooms.txt");
-
-    if (!inFile.is_open()) {
-        cout << "Error: rooms.txt does not exist or cannot be opened." << endl;
-        return {};
-    }
-
-    cout << "Data successfully loaded from file." << endl;
-    vector<string> rooms;
-    string room;
-    while (inFile >> room) {
-        rooms.push_back(room);
-    }
-    inFile.close();
-    return rooms;
-}
-
-vector<string> loadDateData() {
-    ifstream inFile("dates.txt");
-
-    if (!inFile.is_open()) {
-        cout << "Error: dates.txt does not exist or cannot be opened." << endl;
-        return {};
-    }
-
-    cout << "Data successfully loaded from file." << endl;
-    vector<string> dates;
-    string date;
-    while (inFile >> date) {
-        dates.push_back(date);
-    }
-    inFile.close();
-    return dates;
-}
-
 void printSchedule(string batch, vector<ExamDetails> &schedule) {
     cout << batch << ":\n";
     sort(schedule.begin(), schedule.end(), ExamDetails::compareByDate);
@@ -181,74 +98,6 @@ void printSchedule(string batch, vector<ExamDetails> &schedule) {
              << ", Room: " << exam.getRoom() << endl;
     }
     cout << "\n";
-}
-
-extern "C" {
-
-JNIEXPORT void JNICALL Java_ExamScheduler_generateSchedule(JNIEnv* env, jobject thisObj, jobjectArray coursesArray, jobjectArray roomsArray, jobjectArray datesArray) {
-
-    // Get array lengths
-    jsize numCourses = env->GetArrayLength(coursesArray);
-    jsize numRooms = env->GetArrayLength(roomsArray);
-    jsize numDates = env->GetArrayLength(datesArray);
-
-    // Convert courses array
-    vector<Course> courses;
-    jclass courseClass = env->FindClass("Courses");
-    jmethodID getBatchMethod = env->GetMethodID(courseClass, "getBatch", "()Ljava/lang/String;");
-    jmethodID getNameMethod = env->GetMethodID(courseClass, "getName", "()Ljava/lang/String;");
-    jmethodID getProfMethod = env->GetMethodID(courseClass, "getProf", "()Ljava/lang/String;");
-    jmethodID getCreditsMethod = env->GetMethodID(courseClass, "getCredits", "()I");
-
-    for (int i = 0; i < numCourses; i++) {
-        jobject courseObj = env->GetObjectArrayElement(coursesArray, i);
-
-        jstring batchStr = (jstring)env->CallObjectMethod(courseObj, getBatchMethod);
-        jstring nameStr = (jstring)env->CallObjectMethod(courseObj, getNameMethod);
-        jstring profStr = (jstring)env->CallObjectMethod(courseObj, getProfMethod);
-        jint credits = env->CallIntMethod(courseObj, getCreditsMethod);
-
-        string batch = jstring2string(env, batchStr);
-        string name = jstring2string(env, nameStr);
-        string prof = jstring2string(env, profStr);
-
-        courses.emplace_back(batch, name, prof, credits);
-
-        env->DeleteLocalRef(courseObj);
-    }
-
-    // Convert rooms array
-    vector<string> rooms;
-    for (int i = 0; i < numRooms; i++) {
-        jstring roomStr = (jstring)env->GetObjectArrayElement(roomsArray, i);
-        rooms.push_back(jstring2string(env, roomStr));
-        env->DeleteLocalRef(roomStr);
-    }
-
-    // Convert dates array
-    vector<string> dates;
-    for (int i = 0; i < numDates; i++) {
-        jstring dateStr = (jstring)env->GetObjectArrayElement(datesArray, i);
-        dates.push_back(jstring2string(env, dateStr));
-        env->DeleteLocalRef(dateStr);
-    }
-
-    // Create room matrix and make schedule
-    vector<vector<RoomMatrixCell>> roomMatrix(dates.size(),
-        vector<RoomMatrixCell>(rooms.size(), RoomMatrixCell(0, "", "")));
-
-    // Call the existing makeSchedule function
-    makeSchedule(courses, rooms, dates, roomMatrix);
-
-    printSchedule("IMT2023", batch1Schedule);
-    printSchedule("IMT2024", batch2Schedule);
-    printSchedule("IMT2025", batch3Schedule);
-    printSchedule("IMT2026", batch4Schedule);
-    printSchedule("IMT2027", batch5Schedule);
-    // The results are stored in the batch schedules (batch1Schedule, batch2Schedule, etc.)
-    // You might want to convert these back to Java objects and return them
-}
-
 }
 
 void makeSchedule(vector<Course> &courses, vector<string> &rooms, vector<string> &dates, vector<vector<RoomMatrixCell>> &roomMatrix) {
@@ -320,43 +169,69 @@ void exportToCSV() {
     cout << "Exam schedules exported to ExamSchedules.csv successfully!" << endl;
 }
 
+extern "C" {
 
-/*
-int main() {
-    coursesList = loadCourseData();
-    roomsList = loadRoomData();
-    dates = loadDateData();
+JNIEXPORT void JNICALL Java_ExamScheduler_generateSchedule(JNIEnv* env, jobject thisObj, jobjectArray coursesArray, jobjectArray roomsArray, jobjectArray datesArray) {
 
-    int totalSlots = roomsList.size() * dates.size() * 2; // 2 slots per day per room
-    if (coursesList.size() > totalSlots) {
-        cout << "Error: Timetable is not possible as the total number of courses exceeds the available slots." << endl;
-        return 1;
+    // Get array lengths
+    jsize numCourses = env->GetArrayLength(coursesArray);
+    jsize numRooms = env->GetArrayLength(roomsArray);
+    jsize numDates = env->GetArrayLength(datesArray);
+
+    // Convert courses array
+    vector<Course> courses;
+    jclass courseClass = env->FindClass("Courses");
+    jmethodID getBatchMethod = env->GetMethodID(courseClass, "getBatch", "()Ljava/lang/String;");
+    jmethodID getNameMethod = env->GetMethodID(courseClass, "getName", "()Ljava/lang/String;");
+    jmethodID getProfMethod = env->GetMethodID(courseClass, "getProf", "()Ljava/lang/String;");
+    jmethodID getCreditsMethod = env->GetMethodID(courseClass, "getCredits", "()I");
+
+    for (int i = 0; i < numCourses; i++) {
+        jobject courseObj = env->GetObjectArrayElement(coursesArray, i);
+
+        jstring batchStr = (jstring)env->CallObjectMethod(courseObj, getBatchMethod);
+        jstring nameStr = (jstring)env->CallObjectMethod(courseObj, getNameMethod);
+        jstring profStr = (jstring)env->CallObjectMethod(courseObj, getProfMethod);
+        jint credits = env->CallIntMethod(courseObj, getCreditsMethod);
+
+        string batch = jstring2string(env, batchStr);
+        string name = jstring2string(env, nameStr);
+        string prof = jstring2string(env, profStr);
+
+        courses.emplace_back(batch, name, prof, credits);
+
+        env->DeleteLocalRef(courseObj);
     }
 
-    int maxSlotsPerBatch = dates.size() * 2; // 2 slots per day for each batch
-    unordered_map<string, int> batchCourseCount;
-    for (const auto &course : coursesList) {
-        batchCourseCount[course.getBatch()]++;
-    }
-    for (const auto &entry : batchCourseCount) {
-        if (entry.second > maxSlotsPerBatch) {
-            cout << "Error: Timetable is not possible as the number of courses for batch "  << entry.first << " exceeds the available slots for that batch." << endl;
-            return 1;
-        }
+    // Convert rooms array
+    vector<string> rooms;
+    for (int i = 0; i < numRooms; i++) {
+        jstring roomStr = (jstring)env->GetObjectArrayElement(roomsArray, i);
+        rooms.push_back(jstring2string(env, roomStr));
+        env->DeleteLocalRef(roomStr);
     }
 
-    vector<vector<RoomMatrixCell>> roomMatrix(dates.size(), vector<RoomMatrixCell>(roomsList.size(), RoomMatrixCell(0, "", "")));
-    makeSchedule(coursesList, roomsList, dates, roomMatrix);
+    // Convert dates array
+    vector<string> dates;
+    for (int i = 0; i < numDates; i++) {
+        jstring dateStr = (jstring)env->GetObjectArrayElement(datesArray, i);
+        dates.push_back(jstring2string(env, dateStr));
+        env->DeleteLocalRef(dateStr);
+    }
 
-    cout << "\nExam Schedules:\n" << endl;
+    // Create room matrix and make schedule
+    vector<vector<RoomMatrixCell>> roomMatrix(dates.size(),
+        vector<RoomMatrixCell>(rooms.size(), RoomMatrixCell(0, "", "")));
+
+    // Call the existing makeSchedule function
+    makeSchedule(courses, rooms, dates, roomMatrix);
 
     printSchedule("IMT2023", batch1Schedule);
     printSchedule("IMT2024", batch2Schedule);
     printSchedule("IMT2025", batch3Schedule);
     printSchedule("IMT2026", batch4Schedule);
     printSchedule("IMT2027", batch5Schedule);
-
     exportToCSV();
+}
 
-    return 0;
-    }*/
+}
