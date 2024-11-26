@@ -157,56 +157,65 @@ public:
         return scheduleBatch(0);
     }
 
+  // Function to print timetable
     void printTimetable() {
-        const int width = 30;
-        for (const auto& [batchName, schedule] : timetable) {
-            cout << "\nTimetable for Batch: " << batchName << "\n";
-            cout << left << setw(width) << "Period\\Day";
-            for (int day = 0; day < 5; ++day)
-                cout << left << setw(width) << "Day " + to_string(day + 1);
-            cout << "\n";
+        int width = 25;
 
-            for (int period = 0; period < 4; ++period) {
-                cout << left << setw(width) << "Period " + to_string(period + 1);
-                for (int day = 0; day < 5; ++day) {
+        vector<string> days = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday"};
+        vector<string> slots = {"9:30 - 11:00", "11:15 - 12:45", "1:30 - 3:00", "3:15 - 4:45"};
+
+        for (const auto& [batchName, schedule] : timetable) {
+            cout << "\nTimetable for Batch: " << batchName << endl;
+            cout << left << setw(width) << "Period\\Day";
+            for (const auto& day : days)
+                cout << left << setw(20) << day;
+            cout << endl;
+
+            for (int period = 0; period < slots.size(); ++period) {
+                cout << left << setw(width) << slots[period];
+                for (int day = 0; day < days.size(); ++day) {
                     const auto& [prof, subj, room] = schedule[day][period];
                     string display = (subj.empty() ? "Free" : subj + " by " + prof + " in " + room);
                     cout << left << setw(width) << display;
                 }
-                cout << "\n";
+                cout << endl;
             }
         }
     }
 
+    // Function to export timetable to CSV
     void exportToCSV() {
         ofstream outFile("Timetable(withRandom).csv");
         if (!outFile) {
-            cout << "Error opening file for writing.\n";
+            cout << "Error opening file for writing." << endl;
             return;
         }
 
-        for (const auto& [batchName, schedule] : timetable) {
-            outFile << "Timetable for Batch: " << batchName << "\n";
-            outFile << "Period\\Day,";
-            for (int day = 0; day < 5; ++day)
-                outFile << "Day " << day + 1 << ",";
-            outFile << "\n";
+        vector<string> days = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday"};
+        vector<string> slots = {"9:30 - 11:00", "11:15 - 12:45", "1:30 - 3:00", "3:15 - 4:45"};
 
-            for (int period = 0; period < 4; ++period) {
-                outFile << "Period " << period + 1 << ",";
-                for (int day = 0; day < 5; ++day) {
+        for (const auto& [batchName, schedule] : timetable) {
+            outFile << "Timetable for Batch: " << batchName << endl;
+            outFile << "Time\\Day,";
+            for (const auto& day : days)
+                outFile << day << ",";
+            outFile << endl;
+
+            for (int period = 0; period < slots.size(); ++period) {
+                outFile << slots[period] << ",";
+                for (int day = 0; day < days.size(); ++day) {
                     const auto& [prof, subj, room] = schedule[day][period];
                     string display = (subj.empty() ? "Free" : subj + " by " + prof + " in " + room);
                     outFile << display << ",";
                 }
-                outFile << "\n";
+                outFile << endl;
             }
-            outFile << "\n";
+            outFile << endl;
         }
-        cout << "Timetable exported to: Timetable(withRandom).csv\n";
+
+        cout << "Timetable exported to Timetable(withRandom).csv" << endl;
         outFile.close();
     }
-};
 
 
 vector<Professor> readProfessorsFromFile(const string& filename) {
