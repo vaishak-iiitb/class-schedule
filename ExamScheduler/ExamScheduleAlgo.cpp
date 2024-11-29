@@ -11,7 +11,18 @@
 
 using namespace std;
 
+
+// Class Definitions
+
 class Course {
+/*
+    The `Course` class represents a course to be scheduled for an exam.
+    Attributes:
+    - `batch`: The batch (e.g., IMT2023) to which the course belongs.
+    - `name`: The name of the course.
+    - `prof`: The professor conducting the course.
+    - `credits`: The number of credits assigned to the course.
+*/
 private:
     string batch;
     string name;
@@ -19,9 +30,11 @@ private:
     int credits;
 
 public:
+    // Constructor to initialize course attributes.
     Course(string batch, string name, string prof, int credits)
         : batch(batch), name(name), prof(prof), credits(credits) {}
 
+    // Getter methods for accessing private members.
     string getBatch() const { return batch; }
     string getName() const { return name; }
     string getProf() const { return prof; }
@@ -29,6 +42,19 @@ public:
 };
 
 class ExamDetails {
+
+    /*
+    The `ExamDetails` class represents the finalized exam details for a course.
+    Attributes:
+    - `batch`: The batch for which the exam is scheduled.
+    - `name`: The name of the course.
+    - `slot`: The time slot (e.g., morning or afternoon).
+    - `date`: The date of the exam.
+    - `room`: The room where the exam is scheduled.
+    Methods:
+    - A static method `compareByDate` to sort exams by date.
+    */
+   
 private:
     string batch;
     string name;
@@ -37,21 +63,32 @@ private:
     string room;
 
 public:
+
+    // Constructor to initialize exam details.
     ExamDetails(string batch, string name, int slot, string date, string room)
         : batch(batch), name(name), slot(slot), date(date), room(room) {}
 
+    // Getter methods for accessing private members.
     string getBatch() const { return batch; }
     string getName() const { return name; }
     int getSlot() const { return slot; }
     string getDate() const { return date; }
     string getRoom() const { return room; }
 
+    // Static method to compare ExamDetails objects by date for sorting purposes.
     static bool compareByDate(const ExamDetails &a, const ExamDetails &b) {
         return a.getDate() < b.getDate();
     }
 };
 
 class RoomMatrixCell {
+    /*
+    The `RoomMatrixCell` class represents a single cell in the room scheduling matrix.
+    Attributes:
+    - `slot`: The time slot assigned to the room.
+    - `batch`: The batch occupying the room in that slot.
+    - `subject`: The subject being examined in the room.
+    */
 private:
     int slot;
     string batch;
@@ -66,12 +103,16 @@ public:
     string getSubject() const { return subject; }
 };
 
+//prototype for makeSchedule function
 void makeSchedule(vector<Course> &courses, vector<string> &rooms, vector<string> &dates, vector<vector<RoomMatrixCell>> &roomMatrix);
 
+
+// Global vectors to hold the data for courses, rooms, and dates.
 vector<Course> coursesList;
 vector<string> roomsList;
 vector<string> dates;
 
+// Global vectors to store the schedules for different batches
 vector<ExamDetails> batch1Schedule;
 vector<ExamDetails> batch2Schedule;
 vector<ExamDetails> batch3Schedule;
@@ -79,6 +120,16 @@ vector<ExamDetails> batch4Schedule;
 vector<ExamDetails> batch5Schedule;
 
 string jstring2string(JNIEnv* env, jstring jStr) {
+
+    /*
+    Converts a `jstring` (Java string) to a standard C++ string.
+    Parameters:
+    - `env`: Pointer to the JNI environment.
+    - `jStr`: The Java string to convert.
+    Returns:
+    - A standard C++ string.
+    */
+
     if (!jStr) return "";
     const char* cstr = env->GetStringUTFChars(jStr, nullptr);
     std::string str(cstr);
@@ -87,35 +138,54 @@ string jstring2string(JNIEnv* env, jstring jStr) {
 }
 
 string slotTime(int slot) {
+
+     /*
+    Provides the time range for a given exam slot.
+    Parameters:
+    - `slot`: An integer representing the slot (1 for morning, 2 for afternoon).
+    Returns:
+    - A string representing the time range for the slot.
+    */
+
     return (slot == 1) ? "9:30 am - 12:30 pm" : "2:00 pm - 5:00 pm";
 }
 
+
+// Function to print the schedule for a specific batch 
 void printSchedule(string batch, vector<ExamDetails> &schedule) {
-    cout << batch << ":\n";
+    cout << batch << ":\n"; // Print the batch name
+    // Sort the schedule based on exam dates using a static comparator function
     sort(schedule.begin(), schedule.end(), ExamDetails::compareByDate);
+    // Iterate through each exam and print its details
     for (auto &exam : schedule) {
         cout << "Name: " << exam.getName() << ", Slot: " << slotTime(exam.getSlot()) << ", Date: " << exam.getDate()
              << ", Room: " << exam.getRoom() << endl;
     }
-    cout << "\n";
+    cout << "\n";  // Print a new line for separation
 }
 
+// Function to create an exam schedule by assigning time slots, rooms, and dates to courses
 void makeSchedule(vector<Course> &courses, vector<string> &rooms, vector<string> &dates, vector<vector<RoomMatrixCell>> &roomMatrix) {
 
-    int currentSlot = 1;
-    int currentRoom = 0;
-    int currentDate = 0;
+    int currentSlot = 1;    // Initialize the first slot
+    int currentRoom = 0;    // Initialize the first room
+    int currentDate = 0;    // Initialize the first date
 
     for (auto &course : courses) {
+        // Check if there are insufficient rooms or dates to schedule exams
         if (currentSlot > 2 && currentRoom == 0 && currentDate == 0) {
             cout << "Error: Insufficient rooms or dates to schedule all exams." << endl;
             return;
         }
 
+        // Assign the slot, batch, and course name to the roomMatrix
         roomMatrix[currentDate][currentRoom] = RoomMatrixCell(currentSlot, course.getBatch(), course.getName());
 
+        // Create an ExamDetails object for the current course
         ExamDetails exam(course.getBatch(), course.getName(), currentSlot, dates[currentDate], rooms[currentRoom]);
 
+
+        // Add the exam to the corresponding batch schedule
         if (course.getBatch() == "IMT2023") {
             batch1Schedule.push_back(exam);
         } else if (course.getBatch() == "IMT2024") {
@@ -128,13 +198,19 @@ void makeSchedule(vector<Course> &courses, vector<string> &rooms, vector<string>
             batch5Schedule.push_back(exam);
         }
 
+        // Move to the next date
         currentDate++;
+
+        // If all dates are used, reset date and move to the next slot
         if (currentDate == dates.size()) {
             currentDate = 0;
             currentSlot++;
+
+             // If all slots are used, reset slot and move to the next room
             if (currentSlot > 2) {
                 currentSlot = 1;
                 currentRoom++;
+                // If all rooms are used, reset room to the first one
                 if (currentRoom == rooms.size()) {
                     currentRoom = 0;
                 }
@@ -143,22 +219,28 @@ void makeSchedule(vector<Course> &courses, vector<string> &rooms, vector<string>
     }
 }
 
-void exportToCSV() {
-    ofstream outFile("ExamSchedules.csv");
 
+// Function to export the exam schedule to a CSV file
+void exportToCSV() {
+    ofstream outFile("ExamSchedules.csv");  // Open the CSV file for writing
+
+    // Check if the file could not be opened
     if (!outFile.is_open()) {
         cout << "Error: Could not open file for writing!" << endl;
         return;
     }
 
+    // Write the CSV header
     outFile << "Batch,Name,Time Slot,Date,Room\n";
 
+    // Lambda function to write a schedule to the file
     auto writeSchedule = [&outFile](vector<ExamDetails> &schedule) {
         for (auto &exam : schedule) {
             outFile << exam.getBatch() << "," << exam.getName() << "," << slotTime(exam.getSlot()) << "," << exam.getDate() << "," << exam.getRoom() << "\n";
         }
     };
 
+    // Write all batch schedules to the file
     writeSchedule(batch1Schedule);
     writeSchedule(batch2Schedule);
     writeSchedule(batch3Schedule);
@@ -169,16 +251,18 @@ void exportToCSV() {
     cout << "Exam schedules exported to ExamSchedules.csv successfully!" << endl;
 }
 
+
+// JNI function to generate the exam schedule from Java objects
 extern "C" {
 
 JNIEXPORT void JNICALL Java_ExamScheduler_generateSchedule(JNIEnv* env, jobject thisObj, jobjectArray coursesArray, jobjectArray roomsArray, jobjectArray datesArray) {
 
-    // Get array lengths
+    // Get the lengths of the Java arrays
     jsize numCourses = env->GetArrayLength(coursesArray);
     jsize numRooms = env->GetArrayLength(roomsArray);
     jsize numDates = env->GetArrayLength(datesArray);
 
-    // Convert courses array
+    // Convert the courses array from Java to C++ vector
     vector<Course> courses;
     jclass courseClass = env->FindClass("Courses");
     jmethodID getBatchMethod = env->GetMethodID(courseClass, "getBatch", "()Ljava/lang/String;");
@@ -194,43 +278,49 @@ JNIEXPORT void JNICALL Java_ExamScheduler_generateSchedule(JNIEnv* env, jobject 
         jstring profStr = (jstring)env->CallObjectMethod(courseObj, getProfMethod);
         jint credits = env->CallIntMethod(courseObj, getCreditsMethod);
 
+        // Convert Java strings to C++ strings
         string batch = jstring2string(env, batchStr);
         string name = jstring2string(env, nameStr);
         string prof = jstring2string(env, profStr);
 
+        // Create a Course object and add it to the vector
         courses.emplace_back(batch, name, prof, credits);
 
-        env->DeleteLocalRef(courseObj);
+        env->DeleteLocalRef(courseObj);     // Clean up local reference
     }
 
-    // Convert rooms array
+    // Convert the rooms array from Java to C++ vector
     vector<string> rooms;
     for (int i = 0; i < numRooms; i++) {
         jstring roomStr = (jstring)env->GetObjectArrayElement(roomsArray, i);
         rooms.push_back(jstring2string(env, roomStr));
-        env->DeleteLocalRef(roomStr);
+        env->DeleteLocalRef(roomStr);       // Clean up local reference
     }
 
-    // Convert dates array
+    // Convert the dates array from Java to C++ vector
     vector<string> dates;
     for (int i = 0; i < numDates; i++) {
         jstring dateStr = (jstring)env->GetObjectArrayElement(datesArray, i);
         dates.push_back(jstring2string(env, dateStr));
-        env->DeleteLocalRef(dateStr);
+        env->DeleteLocalRef(dateStr);       // Clean up local reference
     }
 
-    // Create room matrix and make schedule
+    // Initialize the room matrix with empty cells
     vector<vector<RoomMatrixCell>> roomMatrix(dates.size(),
         vector<RoomMatrixCell>(rooms.size(), RoomMatrixCell(0, "", "")));
 
-    // Call the existing makeSchedule function
+    // Call the makeSchedule function to generate the schedule
     makeSchedule(courses, rooms, dates, roomMatrix);
 
+
+    // Print the schedules for all batches
     printSchedule("IMT2023", batch1Schedule);
     printSchedule("IMT2024", batch2Schedule);
     printSchedule("IMT2025", batch3Schedule);
     printSchedule("IMT2026", batch4Schedule);
     printSchedule("IMT2027", batch5Schedule);
+
+    // Export the schedules to a CSV file
     exportToCSV();
 }
 
