@@ -5,7 +5,7 @@ IMT2024 7
 "Programming in C" "Badrinath" 2
 "Mathematics-1" "Manisha Kulkarni" 4
 "Mathematics-2" "Travis head" 4 
-"Horology" "Your Mom" 2
+"Computational Biology" "Virat Kohli" 2
 IMT2023 5
 "Discrete Mathematics" "Ashish Choudhary" 4
 "Systems and Signals" "Vinod Reddy" 4
@@ -17,7 +17,6 @@ IMT2025 4
 "Data Structures" "Rajesh Gupta" 4
 "Linear Algebra" "Arun Kumar" 4
 "Introduction to AI" "Preeti Nair" 2
-x
 IMT2026 6
 "Computer Networks" "Rahul Mehta" 4
 "Operating Systems" "Deepa Sharma" 4
