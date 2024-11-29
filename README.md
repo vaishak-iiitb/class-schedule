@@ -1,8 +1,8 @@
-# Schedule Management System
+# Timetable Scheduling System 
 
 ## About the Project
 
-The **Schedule Management System** is a command-line interface (CLI)-based tool designed to automate the generation of academic and exam timetables for educational institutions.
+The **Timetable Scheduling System** is a command-line interface (CLI)-based tool designed to automate the generation of academic and exam timetables for educational institutions.
 The system addresses challenges associated with manual scheduling, such as conflicting time slots, room allocation, and faculty availability.
 By leveraging file input and output operations, it ensures efficient scheduling and exports the final timetables in CSV format for seamless integration.
 
@@ -46,7 +46,7 @@ By leveraging file input and output operations, it ensures efficient scheduling 
 
 ## Getting Started
 
-To set up and run the **Schedule Management System**, follow the installation instructions for both the **Exam Schedule Generator** and **Time Table Generator** components as outlined below.
+To set up and run the **Timetable Scheduling System**, follow the installation instructions for both the **Exam Schedule Generator** and **Time Table Generator** components as outlined below.
 
 ---
 
