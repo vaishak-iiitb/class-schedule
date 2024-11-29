@@ -303,7 +303,7 @@ vector<Batch> readBatchesFromFile(const string& filename) {    // Function to re
             string courseName, professorName;
             int hours;
             courseStream >> quoted(courseName) >> quoted(professorName) >> hours;
-            required_subjects[courseName] = hours;
+            required_subjects[courseName] = hours/2;
         }
 
         batches.push_back(Batch(batchName, required_subjects));
