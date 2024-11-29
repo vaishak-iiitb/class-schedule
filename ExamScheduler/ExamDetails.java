@@ -1,10 +1,15 @@
 public class ExamDetails {
+    
+    /*
+    The ExamDetails class represents the detailed information of an exam for a specific course.
+    It includes details such as batch, course name, exam slot, date, room, and utility methods.
+    */
 
-    private String batch;
-    private String name;
-    private int slot;
-    private String date;
-    private String room;
+    private String batch;   // The batch associated with the exam
+    private String name;    // The name of the course for which the exam is conducted
+    private int slot;       // The exam slot number at which the exam is conducted
+    private String date;    // The date of the exam
+    private String room;    // The room where the exam is conducted
 
     // Default constructor
     public ExamDetails() {}
