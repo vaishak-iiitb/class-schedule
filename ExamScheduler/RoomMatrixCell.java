@@ -1,8 +1,8 @@
 public class RoomMatrixCell {
 
-    private int slot;
-    private String batch;
-    private String subject;
+    private int slot;       // The slot for the exam
+    private String batch;   // The batch associated with the exam
+    private String subject; // The subject of the exam
 
     // Default constructor
     public RoomMatrixCell() {}
